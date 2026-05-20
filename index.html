@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DokumenTrack - Online System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Space Grotesk', 'sans-serif'],
+            body: ['DM Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --bg-secondary: #111827;
+      --fg: #f1f5f9;
+      --muted: #64748b;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.3);
+      --card: #1e293b;
+      --border: #334155;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--fg); min-height: 100vh; }
+    .font-display { font-family: 'Space Grotesk', sans-serif; }
+    .bg-atmosphere { background: radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent), radial-gradient(ellipse 60% 40% at 100% 100%, rgba(99, 102, 241, 0.15), transparent), linear-gradient(180deg, var(--bg) 0%, var(--bg-secondary) 100%); }
+    .grid-pattern { background-image: linear-gradient(rgba(51, 65, 85, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(51, 65, 85, 0.3) 1px, transparent 1px); background-size: 40px 40px; }
+    
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slide-in { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes pulse-border { 0%, 100% { border-color: var(--accent); } 50% { border-color: var(--info); } }
+    
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    .animate-slide-in { animation: slide-in 0.4s ease-out forwards; }
+    .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+    .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+    .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+    .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; transition: all 0.3s ease; }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; transition: all 0.3s ease; cursor: pointer; }
+    .stat-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 10px 30px -10px var(--accent-glow); }
+    .stat-card.active-filter { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+
+    .btn-primary { background: var(--accent); color: var(--bg); font-weight: 600; padding: 12px 24px; border-radius: 12px; transition: all 0.2s ease; border: none; cursor: pointer; }
+    .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-secondary { background: transparent; color: var(--fg); font-weight: 500; padding: 12px 24px; border-radius: 12px; border: 1px solid var(--border); transition: all 0.2s ease; cursor: pointer; }
+    .btn-secondary:hover { border-color: var(--accent); background: rgba(16, 185, 129, 0.1); }
+    .btn-info { background: var(--info); color: white; font-weight: 600; padding: 12px 24px; border-radius: 12px; transition: all 0.2s ease; border: none; cursor: pointer; }
+    
+    .input-field { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: var(--fg); width: 100%; transition: all 0.2s ease; font-family: 'DM Sans', sans-serif; }
+    .input-field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .input-field::placeholder { color: var(--muted); }
+
+    .tab-btn { padding: 12px 20px; font-weight: 500; color: var(--muted); border-radius: 10px; transition: all 0.2s ease; cursor: pointer; border: none; background: transparent; }
+    .tab-btn:hover { color: var(--fg); background: rgba(255, 255, 255, 0.05); }
+    .tab-btn.active { background: var(--accent); color: var(--bg); }
+
+    .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .badge-received { background: rgba(16, 185, 129, 0.2); color: var(--accent); }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; padding: 16px 24px; background: var(--card); border: 1px solid var(--accent); border-radius: 12px; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 500px; width: 90%; transform: scale(0.9); transition: all 0.3s ease; }
+    .modal-overlay.show .modal-content { transform: scale(1); }
+    .modal-detail { max-width: 600px; }
+    .modal-bulk { max-width: 800px; }
+
+    .description-box { background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 16px; }
+    .bulk-input-area { background: var(--bg); border: 2px dashed var(--border); border-radius: 12px; padding: 16px; font-family: 'DM Sans', monospace; font-size: 13px; line-height: 1.6; min-height: 200px; resize: vertical; color: var(--fg); width: 100%; }
+    .bulk-input-area:focus { outline: none; border-color: var(--info); animation: pulse-border 2s infinite; }
+    .format-guide { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; }
+    .click-hint { font-size: 10px; color: var(--muted); opacity: 0; transition: opacity 0.2s ease; }
+    .stat-card:hover .click-hint { opacity: 1; }
+
+    /* Loading Spinner */
+    .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: var(--accent); animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) { .tab-btn { padding: 10px 14px; font-size: 14px; } }
+  </style>
+</head>
+<body class="bg-atmosphere">
+  <div class="grid-pattern fixed inset-0 pointer-events-none opacity-30"></div>
+
+  <div class="relative min-h-screen">
+    <!-- Header -->
+    <header class="border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-lg sticky top-0 z-50">
+      <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3 animate-fade-in-up">
+          <div class="w-10 h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--bg)]">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <div>
+            <h1 class="font-display font-bold text-xl">DokumenTrack <span class="text-xs font-normal text-[var(--accent)]">ONLINE</span></h1>
+            <p class="text-xs text-[var(--muted)]">Firebase Realtime Database</p>
+          </div>
+        </div>
+        <div class="text-sm text-[var(--muted)] animate-fade-in-up stagger-1" id="currentDate"></div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      
+      <!-- Loading Indicator -->
+      <div id="loadingIndicator" class="fixed inset-0 bg-[var(--bg)] z-[200] flex flex-col items-center justify-center">
+          <div class="spinner mb-4"></div>
+          <p class="text-[var(--muted)]">Menghubungkan ke Database...</p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="stat-card p-5 animate-fade-in-up stagger-1" onclick="filterByStatus('all')" data-stat="all">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-[var(--accent)]/20 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            </div>
+            <span class="text-[var(--muted)] text-sm">Total</span>
+          </div>
+          <p class="font-display font-bold text-2xl" id="statTotal">0</p>
+          <p class="click-hint mt-1">Klik untuk melihat semua</p>
+        </div>
+        <div class="stat-card p-5 animate-fade-in-up stagger-2" onclick="filterByStatus('pending')" data-stat="pending">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-[var(--warning)]/20 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <span class="text-[var(--muted)] text-sm">Pending</span>
+          </div>
+          <p class="font-display font-bold text-2xl" id="statPending">0</p>
+          <p class="click-hint mt-1">Klik untuk melihat pending</p>
+        </div>
+        <div class="stat-card p-5 animate-fade-in-up stagger-3" onclick="filterByStatus('received')" data-stat="received">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-[var(--accent)]/20 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <span class="text-[var(--muted)] text-sm">Diterima</span>
+          </div>
+          <p class="font-display font-bold text-2xl" id="statReceived">0</p>
+          <p class="click-hint mt-1">Klik untuk melihat diterima</p>
+        </div>
+        <div class="stat-card p-5 animate-fade-in-up stagger-4" onclick="filterByStatus('today')" data-stat="today">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+            <span class="text-[var(--muted)] text-sm">Hari Ini</span>
+          </div>
+          <p class="font-display font-bold text-2xl" id="statToday">0</p>
+          <p class="click-hint mt-1">Klik untuk melihat hari ini</p>
+        </div>
+      </div>
+
+      <!-- Active Filter Indicator -->
+      <div id="activeFilterIndicator" class="hidden mb-4 animate-fade-in-up">
+        <div class="flex items-center gap-3 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-xl px-4 py-3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+          <span class="text-sm">Filter aktif: <strong id="filterLabel" class="text-[var(--accent)]">Semua</strong></span>
+          <button onclick="clearFilter()" class="ml-auto p-1 rounded-lg hover:bg-[var(--accent)]/20 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-6 overflow-x-auto pb-2 animate-fade-in-up" style="animation-delay: 0.3s;">
+        <button class="tab-btn active" data-tab="input" onclick="switchTab('input')">
+          <span class="flex items-center gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Input Dokumen</span>
+        </button>
+        <button class="tab-btn" data-tab="track" onclick="switchTab('track')">
+          <span class="flex items-center gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Tracking</span>
+        </button>
+        <button class="tab-btn" data-tab="list" onclick="switchTab('list')">
+          <span class="flex items-center gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg> Daftar Dokumen</span>
+        </button>
+      </div>
+
+      <!-- Tab Contents -->
+      <!-- Input Tab -->
+      <div id="tab-input" class="tab-content">
+        <div class="card p-6 md:p-8 max-w-2xl animate-fade-in-up" style="animation-delay: 0.4s;">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="font-display font-bold text-2xl">Input Dokumen Baru</h2>
+            <button onclick="openBulkModal()" class="btn-info text-sm py-2 px-4">
+              <span class="flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Input Massal</span>
+            </button>
+          </div>
+          <form id="documentForm" class="space-y-5">
+            <div class="grid md:grid-cols-2 gap-5">
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Nama Pengirim</label><input type="text" name="senderName" class="input-field" placeholder="Masukkan nama pengirim" required></div>
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Nama Penerima</label><input type="text" name="recipientName" class="input-field" placeholder="Masukkan nama penerima" required></div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-5">
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Jenis Dokumen</label><input type="text" name="documentType" id="docTypeInput" class="input-field" list="docTypeList" placeholder="Pilih atau ketik manual" required><datalist id="docTypeList"><option value="Surat"><option value="Dokumen"><option value="Invoice"><option value="Proposal"><option value="Paket"></datalist></div>
+              <div><label class="block text-sm text-[var(--muted)] mb-2">No Invoice/Resi</label><input type="text" name="senderPhone" class="input-field" placeholder="Masukkan nomor invoice atau resi"></div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-5">
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal Penerimaan</label><input type="date" name="documentDate" id="inputDate" class="input-field" required></div>
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Lokasi Penerimaan</label><input type="text" name="location" class="input-field" placeholder="Contoh: Gedung A, Lantai 2" required></div>
+            </div>
+            <div>
+              <label class="block text-sm text-[var(--muted)] mb-2">Deskripsi / Keterangan</label>
+              <textarea name="description" id="descriptionInput" class="input-field" rows="4" placeholder="Masukkan deskripsi atau keterangan dokumen"></textarea>
+            </div>
+            <div class="pt-4">
+              <button type="submit" class="btn-primary w-full md:w-auto"><span class="flex items-center justify-center gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Simpan Dokumen</span></button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Track Tab -->
+      <div id="tab-track" class="tab-content hidden">
+        <div class="card p-6 md:p-8 max-w-2xl animate-fade-in-up">
+          <h2 class="font-display font-bold text-2xl mb-6">Tracking Dokumen</h2>
+          <div class="flex gap-3 mb-6">
+            <input type="text" id="trackingInput" class="input-field flex-1" placeholder="Masukkan nomor resi...">
+            <button onclick="trackDocument()" class="btn-primary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+          </div>
+          <div id="trackingResult" class="hidden"></div>
+          <div id="trackingEmpty" class="text-center py-12"><div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--border)]/30 flex items-center justify-center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div><p class="text-[var(--muted)]">Masukkan nomor resi untuk melacak dokumen</p></div>
+        </div>
+      </div>
+
+      <!-- List Tab -->
+      <div id="tab-list" class="tab-content hidden">
+        <div class="card p-6 md:p-8 animate-fade-in-up">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h2 class="font-display font-bold text-2xl">Daftar Dokumen</h2>
+            <div class="flex flex-wrap gap-3">
+              <select id="filterStatus" onchange="renderDocumentList()" class="input-field text-sm py-2 px-4"><option value="all">Semua Status</option><option value="pending">Pending</option><option value="received">Diterima</option></select>
+              <input type="text" id="searchInput" onkeyup="renderDocumentList()" class="input-field text-sm py-2 px-4" placeholder="Cari...">
+              <button onclick="downloadExcel()" class="btn-info text-sm py-2 px-4"><span class="flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download Excel</span></button>
+            </div>
+          </div>
+          <div id="documentList" class="space-y-3"></div>
+          <div id="emptyList" class="text-center py-12 hidden"><div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--border)]/30 flex items-center justify-center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div><p class="text-[var(--muted)]">Belum ada dokumen yang tercatat</p></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modals & Toast -->
+  <div id="toast" class="toast"><div class="flex items-center gap-3"><div id="toastIcon"></div><span id="toastMessage"></span></div></div>
+  
+  <!-- Delete Modal -->
+  <div id="deleteModal" class="modal-overlay"><div class="modal-content"><h3 class="font-display font-bold text-xl mb-4">Konfirmasi Hapus</h3><p class="text-[var(--muted)] mb-6">Apakah Anda yakin ingin menghapus dokumen ini? Tindakan ini tidak dapat dibatalkan.</p><div class="flex gap-3 justify-end"><button onclick="closeDeleteModal()" class="btn-secondary">Batal</button><button onclick="confirmDelete()" class="btn-primary bg-[var(--danger)] hover:brightness-110">Hapus</button></div></div></div>
+  
+  <!-- Receipt Modal -->
+  <div id="receiptModal" class="modal-overlay"><div class="modal-content text-center"><div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--accent)]/20 flex items-center justify-center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><h3 class="font-display font-bold text-xl mb-2">Dokumen Berhasil Disimpan</h3><p class="text-[var(--muted)] mb-4">Nomor Resi:</p><div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 mb-6"><p class="font-display font-bold text-2xl text-[var(--accent)]" id="receiptNumber"></p></div><div class="flex gap-3 justify-center"><button onclick="copyReceipt()" class="btn-secondary"><span class="flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Salin Resi</span></button><button onclick="closeReceiptModal()" class="btn-primary">Tutup</button></div></div></div>
+  
+  <!-- Detail Modal -->
+  <div id="detailModal" class="modal-overlay"><div class="modal-content modal-detail"><div id="detailContent"></div></div></div>
+  
+  <!-- Bulk Modal -->
+  <div id="bulkModal" class="modal-overlay"><div class="modal-content modal-bulk"><div class="flex items-center justify-between mb-6"><h3 class="font-display font-bold text-xl">Input Massal Dokumen</h3><button onclick="closeBulkModal()" class="p-2 rounded-lg hover:bg-[var(--border)]/50 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="format-guide mb-4"><p class="text-sm font-medium text-[var(--info)] mb-2">Format Input:</p><p class="text-xs text-[var(--muted)] mb-2">1. <strong>Excel:</strong> Paste langsung dari Excel (Tab-separated).</p><p class="text-xs text-[var(--muted)] mb-2">2. <strong>Manual:</strong> Pisahkan dengan tanda pipe <code class="bg-[var(--bg)] px-1 rounded">|</code>.</p><div class="mt-3 p-3 bg-[var(--bg)] rounded-lg text-xs"><p class="font-medium text-[var(--fg)] mb-1">Urutan Kolom:</p><code class="text-[var(--accent)]">Pengirim | Penerima | Jenis | No.Inv/Resi | Deskripsi | Lokasi</code></div></div><div class="grid md:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm text-[var(--muted)] mb-2">Jenis Dokumen Default:</label><input type="text" id="defaultDocType" class="input-field" list="docTypeListBulk" placeholder="Pilih/ketik manual"><datalist id="docTypeListBulk"><option value="Surat"><option value="Dokumen"><option value="Invoice"><option value="Proposal"><option value="Paket"></datalist></div><div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal:</label><input type="date" id="bulkDate" class="input-field"></div></div><textarea id="bulkInput" class="bulk-input-area mb-4" placeholder="Paste dari Excel atau ketik manual..."></textarea><div class="flex items-center justify-between"><p class="text-sm text-[var(--muted)]"><span id="bulkCount">0</span> dokumen terdeteksi</p><div class="flex gap-3"><button onclick="closeBulkModal()" class="btn-secondary">Batal</button><button onclick="processBulkInput()" class="btn-primary"><span class="flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Simpan Semua</span></button></div></div><div id="bulkResult" class="mt-4 hidden"></div></div></div>
+
+  <script>
+    // ==================== FIREBASE CONFIGURATION ====================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCh4WRDTq3dcCukyY7UoJXJPOnXszvBWCA",
+      authDomain: "control-document-9b69d.firebaseapp.com",
+      databaseURL: "https://control-document-9b69d-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "control-document-9b69d",
+      storageBucket: "control-document-9b69d.firebasestorage.app",
+      messagingSenderId: "133940119864",
+      appId: "1:133940119864:web:94211f917f9a068503d9cd",
+      measurementId: "G-31M7EHH741"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const dbRef = database.ref('documents');
+
+    // Local State
+    let documents = [];
+    let deleteTargetId = null;
+    let currentReceiptNumber = '';
+    let currentQuickFilter = 'all';
+
+    // ==================== CORE FUNCTIONS ====================
+
+    // Generate Receipt Number
+    function generateReceiptNumber() {
+      const date = new Date();
+      const year = date.getFullYear().toString().slice(-2);
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+      return `DOC${year}${month}${day}${random}`;
+    }
+
+    // Format Date
+    function formatDate(dateString) {
+      if(!dateString) return '-';
+      const options = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+      return new Date(dateString).toLocaleDateString('id-ID', options);
+    }
+
+    function formatShortDate(dateString) {
+      if(!dateString) return '-';
+      const options = { day: 'numeric', month: 'short', year: 'numeric' };
+      return new Date(dateString).toLocaleDateString('id-ID', options);
+    }
+
+    // Toast Notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastIcon = document.getElementById('toastIcon');
+      const toastMessage = document.getElementById('toastMessage');
+      toastIcon.innerHTML = type === 'success' 
+        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>'
+        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+      toastMessage.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    // ==================== FIREBASE REALTIME LISTENER ====================
+    
+    // This listener will sync 'documents' array with Firebase in real-time
+    dbRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      documents = [];
+      if (data) {
+        // Convert object to array
+        Object.keys(data).forEach(key => {
+          documents.push({ id: key, ...data[key] });
+        });
+      }
+      // Sort by receivedDate descending
+      documents.sort((a, b) => new Date(b.receivedDate) - new Date(a.receivedDate));
+      
+      updateStats();
+      renderDocumentList();
+      
+      // Hide loading indicator
+      document.getElementById('loadingIndicator').style.display = 'none';
+    }, (error) => {
+      console.error("Firebase Error:", error);
+      showToast("Gagal terhubung ke database. Cek console.", "error");
+      document.getElementById('loadingIndicator').innerHTML = '<p class="text-[var(--danger)]">Koneksi Gagal</p>';
+    });
+
+    // ==================== STATS & UI ====================
+
+    function updateStats() {
+      const total = documents.length;
+      const pending = documents.filter(d => d.status === 'pending').length;
+      const received = documents.filter(d => d.status === 'received').length;
+      const today = new Date().toDateString();
+      const todayCount = documents.filter(d => new Date(d.documentDate || d.receivedDate).toDateString() === today).length;
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statReceived').textContent = received;
+      document.getElementById('statToday').textContent = todayCount;
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+      if (tabName === 'list') renderDocumentList();
+    }
+
+    function filterByStatus(filter) {
+      currentQuickFilter = filter;
+      document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active-filter'));
+      document.querySelector(`[data-stat="${filter}"]`).classList.add('active-filter');
+      switchTab('list');
+      
+      const filterStatus = document.getElementById('filterStatus');
+      document.getElementById('searchInput').value = '';
+      
+      if (filter === 'all') { filterStatus.value = 'all'; updateFilterIndicator('Semua Dokumen'); }
+      else if (filter === 'pending') { filterStatus.value = 'pending'; updateFilterIndicator('Status Pending'); }
+      else if (filter === 'received') { filterStatus.value = 'received'; updateFilterIndicator('Status Diterima'); }
+      else if (filter === 'today') { filterStatus.value = 'all'; updateFilterIndicator('Dokumen Hari Ini'); }
+      
+      renderDocumentList();
+    }
+
+    function updateFilterIndicator(label) {
+      const indicator = document.getElementById('activeFilterIndicator');
+      const filterLabel = document.getElementById('filterLabel');
+      if (currentQuickFilter !== 'all' || label !== 'Semua Dokumen') {
+        filterLabel.textContent = label;
+        indicator.classList.remove('hidden');
+      } else { indicator.classList.add('hidden'); }
+    }
+
+    function clearFilter() {
+      currentQuickFilter = 'all';
+      document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active-filter'));
+      document.getElementById('filterStatus').value = 'all';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('activeFilterIndicator').classList.add('hidden');
+      renderDocumentList();
+    }
+
+    // ==================== CRUD OPERATIONS ====================
+
+    // Create (Form Submit)
+    document.getElementById('documentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const receiptNumber = generateReceiptNumber();
+      
+      const newDocument = {
+        senderName: formData.get('senderName'),
+        recipientName: formData.get('recipientName'),
+        documentType: formData.get('documentType'),
+        senderPhone: formData.get('senderPhone') || '-', 
+        description: formData.get('description') || '',
+        documentDate: formData.get('documentDate') || new Date().toISOString(),
+        location: formData.get('location') || '-',
+        receivedDate: new Date().toISOString(),
+        status: 'pending',
+        receivedAt: null
+      };
+
+      // Save to Firebase
+      database.ref('documents/' + receiptNumber).set(newDocument, (error) => {
+        if (error) {
+          showToast("Gagal menyimpan data", "error");
+        } else {
+          currentReceiptNumber = receiptNumber;
+          document.getElementById('receiptNumber').textContent = receiptNumber;
+          document.getElementById('receiptModal').classList.add('show');
+          this.reset();
+          document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
+        }
+      });
+    });
+
+    // Update Status
+    function markAsReceived(id) {
+      const updates = {
+        status: 'received',
+        receivedAt: new Date().toISOString()
+      };
+      database.ref('documents/' + id).update(updates, (error) => {
+        if (error) showToast("Gagal update status", "error");
+        else {
+          showToast('Dokumen berhasil ditandai sebagai diterima');
+          // Force refresh tracking view if open
+          if(document.getElementById('trackingInput').value.trim().toUpperCase() === id) trackDocument();
+        }
+      });
+    }
+
+    // Delete
+    function confirmDelete() {
+      if (deleteTargetId) {
+        database.ref('documents/' + deleteTargetId).remove((error) => {
+          if (error) showToast("Gagal menghapus", "error");
+          else showToast('Dokumen berhasil dihapus');
+          closeDeleteModal();
+        });
+      }
+    }
+
+    // ==================== BULK INPUT ====================
+
+    function openBulkModal() {
+      document.getElementById('bulkModal').classList.add('show');
+      document.getElementById('bulkInput').value = '';
+      document.getElementById('bulkCount').textContent = '0';
+      document.getElementById('bulkResult').classList.add('hidden');
+      document.getElementById('bulkDate').value = new Date().toISOString().split('T')[0];
+    }
+    function closeBulkModal() { document.getElementById('bulkModal').classList.remove('show'); }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const bulkInput = document.getElementById('bulkInput');
+      if (bulkInput) {
+        bulkInput.addEventListener('input', function() {
+          const lines = this.value.trim().split('\n').filter(line => line.trim() !== '');
+          document.getElementById('bulkCount').textContent = lines.length;
+        });
+      }
+      // Set initial date
+      const today = new Date().toISOString().split('T')[0];
+      const inputDate = document.getElementById('inputDate');
+      const bulkDate = document.getElementById('bulkDate');
+      if(inputDate) inputDate.value = today;
+      if(bulkDate) bulkDate.value = today;
+      
+      setCurrentDate();
+    });
+
+    function processBulkInput() {
+      const input = document.getElementById('bulkInput').value.trim();
+      const defaultDocType = document.getElementById('defaultDocType').value || 'Dokumen';
+      const bulkDate = document.getElementById('bulkDate').value || new Date().toISOString();
+      
+      if (!input) { showToast('Masukkan data dokumen', 'error'); return; }
+
+      const lines = input.split('\n').filter(line => line.trim() !== '');
+      const results = { success: [], failed: [] };
+      const batchUpdates = {};
+
+      lines.forEach((line) => {
+        let parts;
+        if (line.includes('\t')) parts = line.split('\t').map(p => p.trim());
+        else parts = line.split('|').map(p => p.trim());
+        
+        if (parts.length < 2) { results.failed.push(line); return; }
+
+        const senderName = parts[0];
+        const recipientName = parts[1];
+        if (!senderName || !recipientName) { results.failed.push(line); return; }
+
+        const receiptNumber = generateReceiptNumber();
+        const newDoc = {
+          senderName: senderName,
+          recipientName: recipientName,
+          documentType: parts[2] || defaultDocType,
+          senderPhone: parts[3] || '-',
+          description: parts[4] || '',
+          location: parts[5] || '-',
+          documentDate: bulkDate,
+          receivedDate: new Date().toISOString(),
+          status: 'pending',
+          receivedAt: null
+        };
+
+        batchUpdates[receiptNumber] = newDoc;
+        results.success.push({ receipt: receiptNumber, sender: senderName, recipient: recipientName });
+      });
+
+      // Use update for batch write
+      database.ref('documents').update(batchUpdates, (error) => {
+        if (error) showToast("Sebagian gagal disimpan", "error");
+        else if (results.success.length > 0) showToast(`${results.success.length} dokumen berhasil disimpan`);
+        
+        // Show result in UI
+        const resultDiv = document.getElementById('bulkResult');
+        resultDiv.classList.remove('hidden');
+        resultDiv.innerHTML = `
+          <div class="border border-[var(--border)] rounded-xl p-4 mt-4">
+             <p class="font-medium text-[var(--accent)]">${results.success.length} dokumen berhasil disimpan</p>
+             ${results.failed.length > 0 ? `<p class="text-sm text-[var(--danger)] mt-1">${results.failed.length} baris gagal diproses</p>` : ''}
+             <button onclick="closeBulkModal()" class="btn-primary text-sm py-2 mt-4">Tutup</button>
+          </div>
+        `;
+      });
+    }
+
+    // ==================== VIEWS & OTHERS ====================
+
+    function renderDocumentList() {
+      const listDiv = document.getElementById('documentList');
+      const emptyDiv = document.getElementById('emptyList');
+      const filterStatus = document.getElementById('filterStatus').value;
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+      let filteredDocs = documents;
+
+      if (filterStatus !== 'all') filteredDocs = filteredDocs.filter(d => d.status === filterStatus);
+      if (currentQuickFilter === 'today') {
+        const today = new Date().toDateString();
+        filteredDocs = filteredDocs.filter(d => new Date(d.documentDate || d.receivedDate).toDateString() === today);
+      }
+      if (searchTerm) {
+        filteredDocs = filteredDocs.filter(d => 
+          d.id.toLowerCase().includes(searchTerm) ||
+          d.senderName.toLowerCase().includes(searchTerm) ||
+          d.recipientName.toLowerCase().includes(searchTerm) ||
+          d.documentType.toLowerCase().includes(searchTerm) ||
+          (d.description && d.description.toLowerCase().includes(searchTerm)) ||
+          (d.location && d.location.toLowerCase().includes(searchTerm)) ||
+          (d.senderPhone && d.senderPhone.toLowerCase().includes(searchTerm))
+        );
+      }
+
+      if (filteredDocs.length === 0) {
+        listDiv.innerHTML = '';
+        emptyDiv.classList.remove('hidden');
+      } else {
+        emptyDiv.classList.add('hidden');
+        listDiv.innerHTML = filteredDocs.map((doc, index) => {
+          const descPreview = doc.description ? (doc.description.length > 40 ? doc.description.substring(0, 40) + '...' : doc.description) : '';
+          return `
+            <div class="border border-[var(--border)] rounded-xl p-4 hover:border-[var(--accent)] transition-all animate-slide-in" style="animation-delay: ${index * 0.05}s">
+              <div class="flex flex-col gap-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <span class="font-display font-bold text-[var(--accent)]">${doc.id}</span>
+                      <span class="badge ${doc.status === 'pending' ? 'badge-pending' : 'badge-received'}">${doc.status === 'pending' ? 'Pending' : 'Diterima'}</span>
+                    </div>
+                  </div>
+                  <div class="flex gap-2">
+                    <button onclick="showDetail('${doc.id}')" class="p-2 rounded-lg bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 transition-colors" title="Detail"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                    ${doc.status === 'pending' ? `<button onclick="markAsReceived('${doc.id}')" class="p-2 rounded-lg bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30 transition-colors" title="Tandai diterima"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg></button>` : ''}
+                    <button onclick="openDeleteModal('${doc.id}')" class="p-2 rounded-lg bg-[var(--danger)]/20 text-[var(--danger)] hover:bg-[var(--danger)]/30 transition-colors" title="Hapus"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                  <div><span class="text-[var(--muted)]">Pengirim:</span> <span class="ml-1">${doc.senderName}</span></div>
+                  <div><span class="text-[var(--muted)]">Penerima:</span> <span class="ml-1">${doc.recipientName}</span></div>
+                  <div><span class="text-[var(--muted)]">Jenis:</span> <span class="ml-1">${doc.documentType}</span></div>
+                  <div><span class="text-[var(--muted)]">Tanggal:</span> <span class="ml-1">${formatShortDate(doc.documentDate || doc.receivedDate)}</span></div>
+                  <div class="col-span-2"><span class="text-[var(--muted)]">Lokasi:</span> <span class="ml-1">${doc.location || '-'}</span></div>
+                </div>
+                ${descPreview ? `<div class="description-box py-2 px-3 mt-2"><p class="text-xs text-[var(--muted)]">${descPreview}</p></div>` : ''}
+              </div>
+            </div>`;
+        }).join('');
+      }
+    }
+
+    function trackDocument() {
+      const receiptNumber = document.getElementById('trackingInput').value.trim().toUpperCase();
+      const resultDiv = document.getElementById('trackingResult');
+      const emptyDiv = document.getElementById('trackingEmpty');
+      if (!receiptNumber) { showToast('Masukkan nomor resi', 'error'); return; }
+
+      // Since data is already in memory, no need for extra DB call, but we could verify existence
+      const doc = documents.find(d => d.id === receiptNumber);
+      if (doc) {
+        resultDiv.classList.remove('hidden');
+        emptyDiv.classList.add('hidden');
+        const descriptionHtml = doc.description ? `<div class="description-box mt-4"><p class="text-sm text-[var(--accent)] font-medium mb-1">Deskripsi</p><p class="text-[var(--fg)]">${doc.description}</p></div>` : '';
+        
+        resultDiv.innerHTML = `
+          <div class="border border-[var(--border)] rounded-xl overflow-hidden animate-slide-in">
+            <div class="bg-[var(--accent)]/10 p-4 border-b border-[var(--border)]">
+              <div class="flex items-center justify-between">
+                <div><p class="text-sm text-[var(--muted)]">Nomor Resi</p><p class="font-display font-bold text-lg">${doc.id}</p></div>
+                <span class="badge ${doc.status === 'pending' ? 'badge-pending' : 'badge-received'}">${doc.status === 'pending' ? 'Pending' : 'Diterima'}</span>
+              </div>
+            </div>
+            <div class="p-4 space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div><p class="text-sm text-[var(--muted)]">Pengirim</p><p class="font-medium">${doc.senderName}</p></div>
+                <div><p class="text-sm text-[var(--muted)]">Penerima</p><p class="font-medium">${doc.recipientName}</p></div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div><p class="text-sm text-[var(--muted)]">Jenis</p><p class="font-medium">${doc.documentType}</p></div>
+                <div><p class="text-sm text-[var(--muted)]">No. Invoice/Resi</p><p class="font-medium">${doc.senderPhone}</p></div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div><p class="text-sm text-[var(--muted)]">Tanggal</p><p class="font-medium">${formatShortDate(doc.documentDate || doc.receivedDate)}</p></div>
+                <div><p class="text-sm text-[var(--muted)]">Lokasi</p><p class="font-medium">${doc.location || '-'}</p></div>
+              </div>
+              ${descriptionHtml}
+              <div class="pt-4 border-t border-[var(--border)]">
+                 <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full ${doc.status === 'pending' ? 'bg-[var(--warning)]' : 'bg-[var(--accent)]'}"></div>
+                    <p class="font-medium">${doc.status === 'pending' ? 'Menunggu pengambilan' : 'Sudah diambil'}</p>
+                 </div>
+              </div>
+              ${doc.status === 'pending' ? `<button onclick="markAsReceived('${doc.id}')" class="btn-primary w-full mt-4">Tandai Sebagai Diterima</button>` : ''}
+            </div>
+          </div>`;
+      } else {
+        resultDiv.classList.add('hidden');
+        emptyDiv.classList.remove('hidden');
+        emptyDiv.innerHTML = `<div class="text-center py-8"><div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--danger)]/20 flex items-center justify-center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></div><p class="text-[var(--danger)] font-medium">Dokumen tidak ditemukan</p></div>`;
+      }
+    }
+
+    function showDetail(id) {
+      const doc = documents.find(d => d.id === id);
+      if (!doc) return;
+      const descriptionHtml = doc.description ? `<div class="description-box"><p class="text-[var(--fg)]">${doc.description}</p></div>` : `<div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 text-center"><p class="text-[var(--muted)] text-sm">Tidak ada deskripsi</p></div>`;
+
+      document.getElementById('detailContent').innerHTML = `
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="font-display font-bold text-xl">Detail Dokumen</h3>
+          <button onclick="closeDetailModal()" class="p-2 rounded-lg hover:bg-[var(--border)]/50 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <div class="space-y-4">
+          <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 flex items-center justify-between">
+            <div><p class="text-sm text-[var(--muted)]">Nomor Resi</p><p class="font-display font-bold text-lg text-[var(--accent)]">${doc.id}</p></div>
+            <span class="badge ${doc.status === 'pending' ? 'badge-pending' : 'badge-received'}">${doc.status === 'pending' ? 'Pending' : 'Diterima'}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Pengirim</p><p class="font-medium">${doc.senderName}</p></div>
+            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Penerima</p><p class="font-medium">${doc.recipientName}</p></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Jenis</p><p class="font-medium">${doc.documentType}</p></div>
+            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">No. Invoice/Resi</p><p class="font-medium">${doc.senderPhone}</p></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Tanggal</p><p class="font-medium">${formatShortDate(doc.documentDate || doc.receivedDate)}</p></div>
+            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Lokasi</p><p class="font-medium">${doc.location || '-'}</p></div>
+          </div>
+          <div><p class="text-sm text-[var(--muted)] mb-2">Deskripsi</p>${descriptionHtml}</div>
+          ${doc.status === 'pending' ? `<button onclick="markAsReceived('${doc.id}'); closeDetailModal();" class="btn-primary w-full mt-4">Tandai Sebagai Diterima</button>` : `<div class="bg-[var(--accent)]/10 border border-[var(--accent)]/20 rounded-xl p-4 mt-4 text-center text-[var(--accent)] font-medium">Dokumen sudah diterima</div>`}
+        </div>`;
+      document.getElementById('detailModal').classList.add('show');
+    }
+    
+    function closeDetailModal() { document.getElementById('detailModal').classList.remove('show'); }
+    
+    function openDeleteModal(id) { deleteTargetId = id; document.getElementById('deleteModal').classList.add('show'); }
+    function closeDeleteModal() { deleteTargetId = null; document.getElementById('deleteModal').classList.remove('show'); }
+    
+    function copyReceipt() { navigator.clipboard.writeText(currentReceiptNumber).then(() => showToast('Nomor resi berhasil disalin')); }
+    function closeReceiptModal() { document.getElementById('receiptModal').classList.remove('show'); }
+    function copyToClipboard(text) { navigator.clipboard.writeText(text).then(() => showToast('Nomor resi berhasil disalin')); }
+
+    function setCurrentDate() {
+      const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', options);
+    }
+
+    function downloadExcel() {
+      if (documents.length === 0) { showToast('Tidak ada data', 'error'); return; }
+      const excelData = documents.map((doc, index) => ({
+        'No': index + 1, 'Nomor Resi': doc.id, 'Pengirim': doc.senderName, 'Penerima': doc.recipientName,
+        'Jenis': doc.documentType, 'No Invoice/Resi': doc.senderPhone, 'Tanggal': formatShortDate(doc.documentDate || doc.receivedDate),
+        'Lokasi': doc.location, 'Deskripsi': doc.description, 'Status': doc.status === 'pending' ? 'Pending' : 'Diterima'
+      }));
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      ws['!cols'] = [{ wch: 5 }, { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 18 }, { wch: 18 }, { wch: 20 }, { wch: 30 }, { wch: 10 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Data');
+      const today = new Date();
+      XLSX.writeFile(wb, `Data_Dokumen_${today.getFullYear()}${today.getMonth()+1}${today.getDate()}.xlsx`);
+      showToast('Excel berhasil diunduh');
+    }
+
+    // Event Listeners
+    document.getElementById('trackingInput').addEventListener('keyup', function(e) { if (e.key === 'Enter') trackDocument(); });
+    document.querySelectorAll('.modal-overlay').forEach(modal => { modal.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); }); });
+
+  </script>
+</body>
+</html>
