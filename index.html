@@ -223,15 +223,15 @@
           <form id="documentForm" class="space-y-5">
             <div class="grid md:grid-cols-2 gap-5">
               <div><label class="block text-sm text-[var(--muted)] mb-2">Nama Pengirim</label><input type="text" name="senderName" class="input-field" placeholder="Masukkan nama pengirim" required></div>
-              <div><label class="block text-sm text-[var(--muted)] mb-2">Nama Penerima</label><input type="text" name="recipientName" class="input-field" placeholder="Masukkan nama penerima" required></div>
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Nama Tujuan</label><input type="text" name="recipientName" class="input-field" placeholder="Masukkan nama Tujuan" required></div>
             </div>
             <div class="grid md:grid-cols-2 gap-5">
               <div><label class="block text-sm text-[var(--muted)] mb-2">Jenis Dokumen</label><input type="text" name="documentType" id="docTypeInput" class="input-field" list="docTypeList" placeholder="Pilih atau ketik manual" required><datalist id="docTypeList"><option value="Surat"><option value="Dokumen"><option value="Invoice"><option value="Proposal"><option value="Paket"></datalist></div>
               <div><label class="block text-sm text-[var(--muted)] mb-2">No Invoice/Resi</label><input type="text" name="senderPhone" class="input-field" placeholder="Masukkan nomor invoice atau resi"></div>
             </div>
             <div class="grid md:grid-cols-2 gap-5">
-              <div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal Penerimaan</label><input type="date" name="documentDate" id="inputDate" class="input-field" required></div>
-              <div><label class="block text-sm text-[var(--muted)] mb-2">Lokasi Penerimaan</label><input type="text" name="location" class="input-field" placeholder="Contoh: Gedung A, Lantai 2" required></div>
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal Tujuanan</label><input type="date" name="documentDate" id="inputDate" class="input-field" required></div>
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Lokasi Tujuanan</label><input type="text" name="location" class="input-field" placeholder="Contoh: Gedung A, Lantai 2" required></div>
             </div>
             <div>
               <label class="block text-sm text-[var(--muted)] mb-2">Deskripsi / Keterangan</label>
@@ -288,7 +288,7 @@
   <div id="detailModal" class="modal-overlay"><div class="modal-content modal-detail"><div id="detailContent"></div></div></div>
   
   <!-- Bulk Modal -->
-  <div id="bulkModal" class="modal-overlay"><div class="modal-content modal-bulk"><div class="flex items-center justify-between mb-6"><h3 class="font-display font-bold text-xl">Input Massal Dokumen</h3><button onclick="closeBulkModal()" class="p-2 rounded-lg hover:bg-[var(--border)]/50 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="format-guide mb-4"><p class="text-sm font-medium text-[var(--info)] mb-2">Format Input:</p><p class="text-xs text-[var(--muted)] mb-2">1. <strong>Excel:</strong> Paste langsung dari Excel (Tab-separated).</p><p class="text-xs text-[var(--muted)] mb-2">2. <strong>Manual:</strong> Pisahkan dengan tanda pipe <code class="bg-[var(--bg)] px-1 rounded">|</code>.</p><div class="mt-3 p-3 bg-[var(--bg)] rounded-lg text-xs"><p class="font-medium text-[var(--fg)] mb-1">Urutan Kolom:</p><code class="text-[var(--accent)]">Pengirim | Penerima | Jenis | No.Inv/Resi | Deskripsi | Lokasi</code></div></div><div class="grid md:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm text-[var(--muted)] mb-2">Jenis Dokumen Default:</label><input type="text" id="defaultDocType" class="input-field" list="docTypeListBulk" placeholder="Pilih/ketik manual"><datalist id="docTypeListBulk"><option value="Surat"><option value="Dokumen"><option value="Invoice"><option value="Proposal"><option value="Paket"></datalist></div><div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal:</label><input type="date" id="bulkDate" class="input-field"></div></div><textarea id="bulkInput" class="bulk-input-area mb-4" placeholder="Paste dari Excel atau ketik manual..."></textarea><div class="flex items-center justify-between"><p class="text-sm text-[var(--muted)]"><span id="bulkCount">0</span> dokumen terdeteksi</p><div class="flex gap-3"><button onclick="closeBulkModal()" class="btn-secondary">Batal</button><button onclick="processBulkInput()" class="btn-primary"><span class="flex items-center gap-2"> Simpan Semua</span></button></div></div><div id="bulkResult" class="mt-4 hidden"></div></div></div>
+  <div id="bulkModal" class="modal-overlay"><div class="modal-content modal-bulk"><div class="flex items-center justify-between mb-6"><h3 class="font-display font-bold text-xl">Input Massal Dokumen</h3><button onclick="closeBulkModal()" class="p-2 rounded-lg hover:bg-[var(--border)]/50 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="format-guide mb-4"><p class="text-sm font-medium text-[var(--info)] mb-2">Format Input:</p><p class="text-xs text-[var(--muted)] mb-2">1. <strong>Excel:</strong> Paste langsung dari Excel (Tab-separated).</p><p class="text-xs text-[var(--muted)] mb-2">2. <strong>Manual:</strong> Pisahkan dengan tanda pipe <code class="bg-[var(--bg)] px-1 rounded">|</code>.</p><div class="mt-3 p-3 bg-[var(--bg)] rounded-lg text-xs"><p class="font-medium text-[var(--fg)] mb-1">Urutan Kolom:</p><code class="text-[var(--accent)]">Pengirim | Tujuan | Jenis | No.Inv/Resi | Deskripsi | Lokasi</code></div></div><div class="grid md:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm text-[var(--muted)] mb-2">Jenis Dokumen Default:</label><input type="text" id="defaultDocType" class="input-field" list="docTypeListBulk" placeholder="Pilih/ketik manual"><datalist id="docTypeListBulk"><option value="Surat"><option value="Dokumen"><option value="Invoice"><option value="Proposal"><option value="Paket"></datalist></div><div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal:</label><input type="date" id="bulkDate" class="input-field"></div></div><textarea id="bulkInput" class="bulk-input-area mb-4" placeholder="Paste dari Excel atau ketik manual..."></textarea><div class="flex items-center justify-between"><p class="text-sm text-[var(--muted)]"><span id="bulkCount">0</span> dokumen terdeteksi</p><div class="flex gap-3"><button onclick="closeBulkModal()" class="btn-secondary">Batal</button><button onclick="processBulkInput()" class="btn-primary"><span class="flex items-center gap-2"> Simpan Semua</span></button></div></div><div id="bulkResult" class="mt-4 hidden"></div></div></div>
 
   <script>
     // ==================== FIREBASE CONFIGURATION ====================
@@ -639,7 +639,7 @@
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                   <div><span class="text-[var(--muted)]">Pengirim:</span> <span class="ml-1">${doc.senderName}</span></div>
-                  <div><span class="text-[var(--muted)]">Penerima:</span> <span class="ml-1">${doc.recipientName}</span></div>
+                  <div><span class="text-[var(--muted)]">Tujuan:</span> <span class="ml-1">${doc.recipientName}</span></div>
                   <div><span class="text-[var(--muted)]">Jenis:</span> <span class="ml-1">${doc.documentType}</span></div>
                   <div><span class="text-[var(--muted)]">Tgl. Input:</span> <span class="ml-1">${formatShortDate(doc.documentDate || doc.receivedDate)}</span></div>
                   <div><span class="text-[var(--muted)]">Tgl. diterima:</span> <span class="ml-1 ${doc.status === 'received' ? 'text-[var(--accent)] font-medium' : ''}">${tglditerima}</span></div>
@@ -676,7 +676,7 @@
             <div class="p-4 space-y-4">
               <div class="grid grid-cols-2 gap-4">
                 <div><p class="text-sm text-[var(--muted)]">Pengirim</p><p class="font-medium">${doc.senderName}</p></div>
-                <div><p class="text-sm text-[var(--muted)]">Penerima</p><p class="font-medium">${doc.recipientName}</p></div>
+                <div><p class="text-sm text-[var(--muted)]">Tujuan</p><p class="font-medium">${doc.recipientName}</p></div>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div><p class="text-sm text-[var(--muted)]">Jenis</p><p class="font-medium">${doc.documentType}</p></div>
@@ -722,7 +722,7 @@
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Pengirim</p><p class="font-medium">${doc.senderName}</p></div>
-            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Penerima</p><p class="font-medium">${doc.recipientName}</p></div>
+            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Tujuan</p><p class="font-medium">${doc.recipientName}</p></div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Jenis</p><p class="font-medium">${doc.documentType}</p></div>
@@ -761,7 +761,7 @@
         'No': index + 1, 
         'Nomor Resi': doc.id, 
         'Pengirim': doc.senderName, 
-        'Penerima': doc.recipientName,
+        'Tujuan': doc.recipientName,
         'Jenis': doc.documentType, 
         'No Invoice/Resi': doc.senderPhone, 
         'Tgl Input': formatShortDate(doc.documentDate || doc.receivedDate),
