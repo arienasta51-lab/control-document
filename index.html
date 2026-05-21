@@ -279,16 +279,16 @@
   <div id="toast" class="toast"><div class="flex items-center gap-3"><div id="toastIcon"></div><span id="toastMessage"></span></div></div>
   
   <!-- Delete Modal -->
-  <div id="deleteModal" class="modal-overlay"><div class="modal-content"><h3 class="font-display font-bold text-xl mb-4">Konfirmasi Hapus</h3><p class="text-[var(--muted)] mb-6">Apakah Anda yakin ingin menghapus dokumen ini? Tindakan ini tidak dapat dibatalkan.</p><div class="flex gap-3 justify-end"><button onclick="closeDeleteModal()" class="btn-secondary">Batal</button><button onclick="confirmDelete()" class="btn-primary bg-[var(--danger)] hover:brightness-110">Hapus</button></div></div></div>
+  <div id="deleteModal" class="modal-overlay"><div class="modal-content"><h3 class="font-display font-bold text-xl mb-4">Konfirmasi Hapus</h3><p class="text-[var(--muted)] mb-6">Apakah Anda yakin ingin menghapus dokumen ini?</p><div class="flex gap-3 justify-end"><button onclick="closeDeleteModal()" class="btn-secondary">Batal</button><button onclick="confirmDelete()" class="btn-primary bg-[var(--danger)] hover:brightness-110">Hapus</button></div></div></div>
   
   <!-- Receipt Modal -->
-  <div id="receiptModal" class="modal-overlay"><div class="modal-content text-center"><div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--accent)]/20 flex items-center justify-center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><h3 class="font-display font-bold text-xl mb-2">Dokumen Berhasil Disimpan</h3><p class="text-[var(--muted)] mb-4">Nomor Resi:</p><div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 mb-6"><p class="font-display font-bold text-2xl text-[var(--accent)]" id="receiptNumber"></p></div><div class="flex gap-3 justify-center"><button onclick="copyReceipt()" class="btn-secondary"><span class="flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Salin Resi</span></button><button onclick="closeReceiptModal()" class="btn-primary">Tutup</button></div></div></div>
+  <div id="receiptModal" class="modal-overlay"><div class="modal-content text-center"><div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--accent)]/20 flex items-center justify-center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><h3 class="font-display font-bold text-xl mb-2">Dokumen Berhasil Disimpan</h3><p class="text-[var(--muted)] mb-4">Nomor Resi:</p><div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 mb-6"><p class="font-display font-bold text-2xl text-[var(--accent)]" id="receiptNumber"></p></div><div class="flex gap-3 justify-center"><button onclick="copyReceipt()" class="btn-secondary"><span class="flex items-center gap-2"> Salin Resi</span></button><button onclick="closeReceiptModal()" class="btn-primary">Tutup</button></div></div></div>
   
   <!-- Detail Modal -->
   <div id="detailModal" class="modal-overlay"><div class="modal-content modal-detail"><div id="detailContent"></div></div></div>
   
   <!-- Bulk Modal -->
-  <div id="bulkModal" class="modal-overlay"><div class="modal-content modal-bulk"><div class="flex items-center justify-between mb-6"><h3 class="font-display font-bold text-xl">Input Massal Dokumen</h3><button onclick="closeBulkModal()" class="p-2 rounded-lg hover:bg-[var(--border)]/50 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="format-guide mb-4"><p class="text-sm font-medium text-[var(--info)] mb-2">Format Input:</p><p class="text-xs text-[var(--muted)] mb-2">1. <strong>Excel:</strong> Paste langsung dari Excel (Tab-separated).</p><p class="text-xs text-[var(--muted)] mb-2">2. <strong>Manual:</strong> Pisahkan dengan tanda pipe <code class="bg-[var(--bg)] px-1 rounded">|</code>.</p><div class="mt-3 p-3 bg-[var(--bg)] rounded-lg text-xs"><p class="font-medium text-[var(--fg)] mb-1">Urutan Kolom:</p><code class="text-[var(--accent)]">Pengirim | Penerima | Jenis | No.Inv/Resi | Deskripsi | Lokasi</code></div></div><div class="grid md:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm text-[var(--muted)] mb-2">Jenis Dokumen Default:</label><input type="text" id="defaultDocType" class="input-field" list="docTypeListBulk" placeholder="Pilih/ketik manual"><datalist id="docTypeListBulk"><option value="Surat"><option value="Dokumen"><option value="Invoice"><option value="Proposal"><option value="Paket"></datalist></div><div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal:</label><input type="date" id="bulkDate" class="input-field"></div></div><textarea id="bulkInput" class="bulk-input-area mb-4" placeholder="Paste dari Excel atau ketik manual..."></textarea><div class="flex items-center justify-between"><p class="text-sm text-[var(--muted)]"><span id="bulkCount">0</span> dokumen terdeteksi</p><div class="flex gap-3"><button onclick="closeBulkModal()" class="btn-secondary">Batal</button><button onclick="processBulkInput()" class="btn-primary"><span class="flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Simpan Semua</span></button></div></div><div id="bulkResult" class="mt-4 hidden"></div></div></div>
+  <div id="bulkModal" class="modal-overlay"><div class="modal-content modal-bulk"><div class="flex items-center justify-between mb-6"><h3 class="font-display font-bold text-xl">Input Massal Dokumen</h3><button onclick="closeBulkModal()" class="p-2 rounded-lg hover:bg-[var(--border)]/50 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="format-guide mb-4"><p class="text-sm font-medium text-[var(--info)] mb-2">Format Input:</p><p class="text-xs text-[var(--muted)] mb-2">1. <strong>Excel:</strong> Paste langsung dari Excel (Tab-separated).</p><p class="text-xs text-[var(--muted)] mb-2">2. <strong>Manual:</strong> Pisahkan dengan tanda pipe <code class="bg-[var(--bg)] px-1 rounded">|</code>.</p><div class="mt-3 p-3 bg-[var(--bg)] rounded-lg text-xs"><p class="font-medium text-[var(--fg)] mb-1">Urutan Kolom:</p><code class="text-[var(--accent)]">Pengirim | Penerima | Jenis | No.Inv/Resi | Deskripsi | Lokasi</code></div></div><div class="grid md:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm text-[var(--muted)] mb-2">Jenis Dokumen Default:</label><input type="text" id="defaultDocType" class="input-field" list="docTypeListBulk" placeholder="Pilih/ketik manual"><datalist id="docTypeListBulk"><option value="Surat"><option value="Dokumen"><option value="Invoice"><option value="Proposal"><option value="Paket"></datalist></div><div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal:</label><input type="date" id="bulkDate" class="input-field"></div></div><textarea id="bulkInput" class="bulk-input-area mb-4" placeholder="Paste dari Excel atau ketik manual..."></textarea><div class="flex items-center justify-between"><p class="text-sm text-[var(--muted)]"><span id="bulkCount">0</span> dokumen terdeteksi</p><div class="flex gap-3"><button onclick="closeBulkModal()" class="btn-secondary">Batal</button><button onclick="processBulkInput()" class="btn-primary"><span class="flex items-center gap-2"> Simpan Semua</span></button></div></div><div id="bulkResult" class="mt-4 hidden"></div></div></div>
 
   <script>
     // ==================== FIREBASE CONFIGURATION ====================
@@ -619,6 +619,8 @@
         emptyDiv.classList.add('hidden');
         listDiv.innerHTML = filteredDocs.map((doc, index) => {
           const descPreview = doc.description ? (doc.description.length > 40 ? doc.description.substring(0, 40) + '...' : doc.description) : '';
+          const tglditerima = doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-';
+          
           return `
             <div class="border border-[var(--border)] rounded-xl p-4 hover:border-[var(--accent)] transition-all animate-slide-in" style="animation-delay: ${index * 0.05}s">
               <div class="flex flex-col gap-3">
@@ -639,8 +641,9 @@
                   <div><span class="text-[var(--muted)]">Pengirim:</span> <span class="ml-1">${doc.senderName}</span></div>
                   <div><span class="text-[var(--muted)]">Penerima:</span> <span class="ml-1">${doc.recipientName}</span></div>
                   <div><span class="text-[var(--muted)]">Jenis:</span> <span class="ml-1">${doc.documentType}</span></div>
-                  <div><span class="text-[var(--muted)]">Tanggal:</span> <span class="ml-1">${formatShortDate(doc.documentDate || doc.receivedDate)}</span></div>
-                  <div class="col-span-2"><span class="text-[var(--muted)]">Lokasi:</span> <span class="ml-1">${doc.location || '-'}</span></div>
+                  <div><span class="text-[var(--muted)]">Tgl. Input:</span> <span class="ml-1">${formatShortDate(doc.documentDate || doc.receivedDate)}</span></div>
+                  <div><span class="text-[var(--muted)]">Tgl. diterima:</span> <span class="ml-1 ${doc.status === 'received' ? 'text-[var(--accent)] font-medium' : ''}">${tglditerima}</span></div>
+                  <div><span class="text-[var(--muted)]">Lokasi:</span> <span class="ml-1">${doc.location || '-'}</span></div>
                 </div>
                 ${descPreview ? `<div class="description-box py-2 px-3 mt-2"><p class="text-xs text-[var(--muted)]">${descPreview}</p></div>` : ''}
               </div>
@@ -687,7 +690,7 @@
               <div class="pt-4 border-t border-[var(--border)]">
                  <div class="flex items-center gap-2">
                     <div class="w-3 h-3 rounded-full ${doc.status === 'pending' ? 'bg-[var(--warning)]' : 'bg-[var(--accent)]'}"></div>
-                    <p class="font-medium">${doc.status === 'pending' ? 'Menunggu pengambilan' : 'Sudah diambil'}</p>
+                    <p class="font-medium">${doc.status === 'pending' ? 'Menunggu pengambilan' : 'Sudah diterima'}</p>
                  </div>
               </div>
               ${doc.status === 'pending' ? `<button onclick="markAsReceived('${doc.id}')" class="btn-primary w-full mt-4">Tandai Sebagai Diterima</button>` : ''}
@@ -704,6 +707,8 @@
       const doc = documents.find(d => d.id === id);
       if (!doc) return;
       const descriptionHtml = doc.description ? `<div class="description-box"><p class="text-[var(--fg)]">${doc.description}</p></div>` : `<div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 text-center"><p class="text-[var(--muted)] text-sm">Tidak ada deskripsi</p></div>`;
+      
+      const tglditerimaDetail = doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-';
 
       document.getElementById('detailContent').innerHTML = `
         <div class="flex items-center justify-between mb-6">
@@ -724,8 +729,11 @@
             <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">No. Invoice/Resi</p><p class="font-medium">${doc.senderPhone}</p></div>
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Tanggal</p><p class="font-medium">${formatShortDate(doc.documentDate || doc.receivedDate)}</p></div>
-            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Lokasi</p><p class="font-medium">${doc.location || '-'}</p></div>
+            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Tgl. Input</p><p class="font-medium">${formatShortDate(doc.documentDate || doc.receivedDate)}</p></div>
+            <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Tgl. diterima</p><p class="font-medium ${doc.status === 'received' ? 'text-[var(--accent)]' : ''}">${tglditerimaDetail}</p></div>
+          </div>
+          <div class="grid grid-cols-1 gap-4">
+             <div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4"><p class="text-sm text-[var(--muted)] mb-1">Lokasi</p><p class="font-medium">${doc.location || '-'}</p></div>
           </div>
           <div><p class="text-sm text-[var(--muted)] mb-2">Deskripsi</p>${descriptionHtml}</div>
           ${doc.status === 'pending' ? `<button onclick="markAsReceived('${doc.id}'); closeDetailModal();" class="btn-primary w-full mt-4">Tandai Sebagai Diterima</button>` : `<div class="bg-[var(--accent)]/10 border border-[var(--accent)]/20 rounded-xl p-4 mt-4 text-center text-[var(--accent)] font-medium">Dokumen sudah diterima</div>`}
@@ -750,13 +758,21 @@
     function downloadExcel() {
       if (documents.length === 0) { showToast('Tidak ada data', 'error'); return; }
       const excelData = documents.map((doc, index) => ({
-        'No': index + 1, 'Nomor Resi': doc.id, 'Pengirim': doc.senderName, 'Penerima': doc.recipientName,
-        'Jenis': doc.documentType, 'No Invoice/Resi': doc.senderPhone, 'Tanggal': formatShortDate(doc.documentDate || doc.receivedDate),
-        'Lokasi': doc.location, 'Deskripsi': doc.description, 'Status': doc.status === 'pending' ? 'Pending' : 'Diterima'
+        'No': index + 1, 
+        'Nomor Resi': doc.id, 
+        'Pengirim': doc.senderName, 
+        'Penerima': doc.recipientName,
+        'Jenis': doc.documentType, 
+        'No Invoice/Resi': doc.senderPhone, 
+        'Tgl Input': formatShortDate(doc.documentDate || doc.receivedDate),
+        'Tgl diterima': doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-',
+        'Lokasi': doc.location, 
+        'Deskripsi': doc.description, 
+        'Status': doc.status === 'pending' ? 'Pending' : 'Diterima'
       }));
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet(excelData);
-      ws['!cols'] = [{ wch: 5 }, { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 18 }, { wch: 18 }, { wch: 20 }, { wch: 30 }, { wch: 10 }];
+      ws['!cols'] = [{ wch: 5 }, { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 30 }, { wch: 10 }];
       XLSX.utils.book_append_sheet(wb, ws, 'Data');
       const today = new Date();
       XLSX.writeFile(wb, `Data_Dokumen_${today.getFullYear()}${today.getMonth()+1}${today.getDate()}.xlsx`);
