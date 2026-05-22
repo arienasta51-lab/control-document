@@ -674,7 +674,7 @@
         emptyDiv.classList.add('hidden');
         listDiv.innerHTML = filteredDocs.map((doc, index) => {
           const descPreview = doc.description ? (doc.description.length > 40 ? doc.description.substring(0, 40) + '...' : doc.description) : '';
-          const tglDiambil = doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-';
+          const tglDiterima = doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-';
           const TujuanAktual = doc.status === 'received' && doc.receivedBy ? doc.receivedBy : '-';
           
           return `
@@ -703,7 +703,7 @@
                   <div><span class="text-[var(--muted)]">Jenis:</span> <span class="ml-1">${doc.documentType}</span></div>
                   <div><span class="text-[var(--muted)]">Tgl. Input:</span> <span class="ml-1">${formatShortDate(doc.documentDate || doc.receivedDate)}</span></div>
                   <div><span class="text-[var(--muted)]">Diterima Oleh:</span> <span class="ml-1 ${doc.status === 'received' ? 'text-[var(--accent)] font-medium' : ''}">${TujuanAktual}</span></div>
-                  <div><span class="text-[var(--muted)]">Tgl. Diambil:</span> <span class="ml-1 ${doc.status === 'received' ? 'text-[var(--accent)] font-medium' : ''}">${tglDiambil}</span></div>
+                  <div><span class="text-[var(--muted)]">Tgl. Diterima:</span> <span class="ml-1 ${doc.status === 'received' ? 'text-[var(--accent)] font-medium' : ''}">${tglDiterima}</span></div>
                 </div>
                 ${descPreview ? `<div class="description-box py-2 px-3 mt-2"><p class="text-xs text-[var(--muted)]">${descPreview}</p></div>` : ''}
               </div>
@@ -730,7 +730,7 @@
            statusHtml = `
              <div class="flex items-center gap-2 text-[var(--accent)]">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                <span>Dokumen telah diambil</span>
+                <span>Dokumen telah Diterima</span>
              </div>
              <div class="text-sm text-[var(--muted)] mt-2 pl-7">
                 Diterima oleh: <strong class="text-[var(--fg)]">${doc.receivedBy || '-'}</strong><br>
@@ -786,7 +786,7 @@
       if (!doc) return;
       const descriptionHtml = doc.description ? `<div class="description-box"><p class="text-[var(--fg)]">${doc.description}</p></div>` : `<div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 text-center"><p class="text-[var(--muted)] text-sm">Tidak ada deskripsi</p></div>`;
       
-      const tglDiambilDetail = doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-';
+      const tglDiterimaDetail = doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-';
       const TujuanAktualDetail = doc.status === 'received' && doc.receivedBy ? doc.receivedBy : '-';
 
       document.getElementById('detailContent').innerHTML = `
@@ -821,8 +821,8 @@
                 <strong>${TujuanAktualDetail}</strong>
               </div>
               <div>
-                <span class="text-[var(--muted)]">Tanggal Diambil:</span><br>
-                <strong>${tglDiambilDetail}</strong>
+                <span class="text-[var(--muted)]">Tanggal Diterima:</span><br>
+                <strong>${tglDiterimaDetail}</strong>
               </div>
             </div>
           </div>
@@ -861,7 +861,7 @@
         'Lokasi': doc.location,
         'Status': doc.status === 'pending' ? 'Pending' : 'Diterima',
         'Diterima Oleh': doc.receivedBy || '-',
-        'Tgl Diambil': doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-',
+        'Tgl Diterima': doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-',
         'Deskripsi': doc.description
       }));
       const wb = XLSX.utils.book_new();
