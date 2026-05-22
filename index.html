@@ -226,8 +226,8 @@
               <div><label class="block text-sm text-[var(--muted)] mb-2">No Invoice/Resi</label><input type="text" name="senderPhone" class="input-field" placeholder="Masukkan nomor invoice atau resi"></div>
             </div>
             <div class="grid md:grid-cols-2 gap-5">
-              <div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal Tujuanan</label><input type="date" name="documentDate" id="inputDate" class="input-field" required></div>
-              <div><label class="block text-sm text-[var(--muted)] mb-2">Lokasi Tujuanan</label><input type="text" name="location" class="input-field" placeholder="Contoh: Gedung A, Lantai 2" required></div>
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal Tujuan</label><input type="date" name="documentDate" id="inputDate" class="input-field" required></div>
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Lokasi Tujuan</label><input type="text" name="location" class="input-field" placeholder="Contoh: Gedung A, Lantai 2" required></div>
             </div>
             <div>
               <label class="block text-sm text-[var(--muted)] mb-2">Deskripsi / Keterangan</label>
@@ -306,8 +306,8 @@
   <!-- Receive Confirmation Modal -->
   <div id="receiveModal" class="modal-overlay">
     <div class="modal-content">
-      <h3 class="font-display font-bold text-xl mb-4 text-[var(--accent)]">Konfirmasi Tujuanan Dokumen</h3>
-      <p class="text-[var(--muted)] mb-4">Isi data berikut untuk menyelesaikan proses Tujuanan.</p>
+      <h3 class="font-display font-bold text-xl mb-4 text-[var(--accent)]">Konfirmasi Tujuan Dokumen</h3>
+      <p class="text-[var(--muted)] mb-4">Isi data berikut untuk menyelesaikan proses Tujuan.</p>
       <input type="hidden" id="receiveTargetId">
       <div class="space-y-4">
         <div>
@@ -327,7 +327,7 @@
       </div>
       <div class="flex gap-3 justify-end mt-6">
         <button onclick="closeReceiveModal()" class="btn-secondary">Batal</button>
-        <button onclick="confirmReceive()" class="btn-primary">Simpan Tujuanan</button>
+        <button onclick="confirmReceive()" class="btn-primary">Simpan Tujuan</button>
       </div>
     </div>
   </div>
@@ -842,7 +842,7 @@
           
           ${doc.status === 'received' ? `
           <div class="bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-xl p-4 mt-2">
-            <h4 class="font-bold text-[var(--accent)] mb-3">Detail Tujuanan</h4>
+            <h4 class="font-bold text-[var(--accent)] mb-3">Detail Tujuan</h4>
             <div class="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span class="text-[var(--muted)]">Diterima Oleh:</span><br>
