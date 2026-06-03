@@ -107,7 +107,14 @@
     .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: var(--accent); animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    @media (max-width: 640px) { .tab-btn { padding: 10px 14px; font-size: 14px; } }
+    /* Responsive adjustments for filter controls */
+    .filter-controls-container { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+
+    @media (max-width: 640px) { 
+      .tab-btn { padding: 10px 14px; font-size: 14px; } 
+      .filter-controls-container { width: 100%; }
+      .filter-controls-container > * { flex-grow: 1; }
+    }
   </style>
 </head>
 <body class="bg-atmosphere">
@@ -258,11 +265,22 @@
         <div class="card p-6 md:p-8 animate-fade-in-up">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <h2 class="font-display font-bold text-2xl">Daftar Dokumen</h2>
-            <div class="flex flex-wrap gap-3">
-              <select id="filterStatus" onchange="renderDocumentList()" class="input-field text-sm py-2 px-4"><option value="all">Semua Status</option><option value="pending">Pending</option><option value="received">Diterima</option></select>
+            
+            <!-- Filter Controls Container -->
+            <div class="filter-controls-container">
+              <select id="filterStatus" onchange="renderDocumentList()" class="input-field text-sm py-2 px-4">
+                <option value="all">Semua Status</option>
+                <option value="pending">Pending</option>
+                <option value="received">Diterima</option>
+              </select>
+              
+              <!-- NEW: Date Filter Input -->
+              <input type="date" id="filterDate" onchange="renderDocumentList()" class="input-field text-sm py-2 px-4" title="Filter Tanggal Input">
+              
               <input type="text" id="searchInput" onkeyup="renderDocumentList()" class="input-field text-sm py-2 px-4" placeholder="Cari...">
-              <button onclick="downloadExcel()" class="btn-info text-sm py-2 px-4"><span class="flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download Excel</span></button>
-              <!-- Delete All Button Added Here -->
+              
+              <button onclick="downloadExcel()" class="btn-info text-sm py-2 px-4"><span class="flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Excel</span></button>
+              
               <button onclick="openDeleteAllModal()" class="btn-danger text-sm py-2 px-4"><span class="flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Hapus Semua</span></button>
             </div>
           </div>
@@ -279,7 +297,7 @@
   <!-- Delete Single Modal -->
   <div id="deleteModal" class="modal-overlay"><div class="modal-content"><h3 class="font-display font-bold text-xl mb-4">Konfirmasi Hapus</h3><p class="text-[var(--muted)] mb-6">Apakah Anda yakin ingin menghapus dokumen ini?</p><div class="flex gap-3 justify-end"><button onclick="closeDeleteModal()" class="btn-secondary">Batal</button><button onclick="confirmDelete()" class="btn-danger">Hapus</button></div></div></div>
 
-  <!-- Delete All Modal (NEW) -->
+  <!-- Delete All Modal -->
   <div id="deleteAllModal" class="modal-overlay">
     <div class="modal-content border-[var(--danger)]">
       <div class="flex items-center gap-4 mb-4">
@@ -447,6 +465,8 @@
       
       const filterStatus = document.getElementById('filterStatus');
       document.getElementById('searchInput').value = '';
+      // Reset date filter when using quick stats
+      document.getElementById('filterDate').value = '';
       
       if (filter === 'all') { filterStatus.value = 'all'; updateFilterIndicator('Semua Dokumen'); }
       else if (filter === 'pending') { filterStatus.value = 'pending'; updateFilterIndicator('Status Pending'); }
@@ -470,6 +490,7 @@
       document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active-filter'));
       document.getElementById('filterStatus').value = 'all';
       document.getElementById('searchInput').value = '';
+      document.getElementById('filterDate').value = ''; // Clear date filter
       document.getElementById('activeFilterIndicator').classList.add('hidden');
       renderDocumentList();
     }
@@ -560,7 +581,7 @@
       }
     }
 
-    // Delete All Logic (NEW)
+    // Delete All Logic
     function openDeleteAllModal() {
        if(documents.length === 0) {
          showToast("Tidak ada data untuk dihapus", "error");
@@ -675,14 +696,31 @@
       const emptyDiv = document.getElementById('emptyList');
       const filterStatus = document.getElementById('filterStatus').value;
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      // Get date filter value
+      const filterDateVal = document.getElementById('filterDate').value;
 
       let filteredDocs = documents;
 
+      // 1. Filter by Status
       if (filterStatus !== 'all') filteredDocs = filteredDocs.filter(d => d.status === filterStatus);
+      
+      // 2. Filter by Quick Filter (Today)
       if (currentQuickFilter === 'today') {
         const today = new Date().toDateString();
         filteredDocs = filteredDocs.filter(d => new Date(d.documentDate || d.receivedDate).toDateString() === today);
       }
+      
+      // 3. Filter by Date Input (New Logic)
+      if (filterDateVal) {
+        filteredDocs = filteredDocs.filter(d => {
+            // Handle both 'YYYY-MM-DD' and ISO string formats
+            if (!d.documentDate) return false;
+            const docDateStr = d.documentDate.substring(0, 10); // Extract YYYY-MM-DD
+            return docDateStr === filterDateVal;
+        });
+      }
+
+      // 4. Filter by Search Term
       if (searchTerm) {
         filteredDocs = filteredDocs.filter(d => 
           d.id.toLowerCase().includes(searchTerm) ||
@@ -704,7 +742,7 @@
         listDiv.innerHTML = filteredDocs.map((doc, index) => {
           const descPreview = doc.description ? (doc.description.length > 40 ? doc.description.substring(0, 40) + '...' : doc.description) : '';
           const tglDiterima = doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-';
-          const TujuanAktual = doc.status === 'received' && doc.receivedBy ? doc.receivedBy : '-';
+          const penerimaAktual = doc.status === 'received' && doc.receivedBy ? doc.receivedBy : '-';
           
           return `
             <div class="border border-[var(--border)] rounded-xl p-4 hover:border-[var(--accent)] transition-all animate-slide-in" style="animation-delay: ${index * 0.05}s">
@@ -731,7 +769,7 @@
                   <div><span class="text-[var(--muted)]">Tujuan:</span> <span class="ml-1">${doc.recipientName}</span></div>
                   <div><span class="text-[var(--muted)]">Jenis:</span> <span class="ml-1">${doc.documentType}</span></div>
                   <div><span class="text-[var(--muted)]">Tgl. Input:</span> <span class="ml-1">${formatShortDate(doc.documentDate || doc.receivedDate)}</span></div>
-                  <div><span class="text-[var(--muted)]">Diterima Oleh:</span> <span class="ml-1 ${doc.status === 'received' ? 'text-[var(--accent)] font-medium' : ''}">${TujuanAktual}</span></div>
+                  <div><span class="text-[var(--muted)]">Diterima Oleh:</span> <span class="ml-1 ${doc.status === 'received' ? 'text-[var(--accent)] font-medium' : ''}">${penerimaAktual}</span></div>
                   <div><span class="text-[var(--muted)]">Tgl. Diterima:</span> <span class="ml-1 ${doc.status === 'received' ? 'text-[var(--accent)] font-medium' : ''}">${tglDiterima}</span></div>
                 </div>
                 ${descPreview ? `<div class="description-box py-2 px-3 mt-2"><p class="text-xs text-[var(--muted)]">${descPreview}</p></div>` : ''}
@@ -815,7 +853,7 @@
       const descriptionHtml = doc.description ? `<div class="description-box"><p class="text-[var(--fg)]">${doc.description}</p></div>` : `<div class="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 text-center"><p class="text-[var(--muted)] text-sm">Tidak ada deskripsi</p></div>`;
       
       const tglDiterimaDetail = doc.status === 'received' && doc.receivedAt ? formatShortDate(doc.receivedAt) : '-';
-      const TujuanAktualDetail = doc.status === 'received' && doc.receivedBy ? doc.receivedBy : '-';
+      const penerimaAktualDetail = doc.status === 'received' && doc.receivedBy ? doc.receivedBy : '-';
 
       document.getElementById('detailContent').innerHTML = `
         <div class="flex items-center justify-between mb-6">
@@ -842,11 +880,11 @@
           
           ${doc.status === 'received' ? `
           <div class="bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-xl p-4 mt-2">
-            <h4 class="font-bold text-[var(--accent)] mb-3">Detail Tujuan</h4>
+            <h4 class="font-bold text-[var(--accent)] mb-3">Detail Penerimaan</h4>
             <div class="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span class="text-[var(--muted)]">Diterima Oleh:</span><br>
-                <strong>${TujuanAktualDetail}</strong>
+                <strong>${penerimaAktualDetail}</strong>
               </div>
               <div>
                 <span class="text-[var(--muted)]">Tanggal Diterima:</span><br>
@@ -882,7 +920,7 @@
         'No': index + 1, 
         'Nomor Resi': doc.id, 
         'Pengirim': doc.senderName, 
-        'Tujuan Tujuan': doc.recipientName,
+        'Penerima Tujuan': doc.recipientName,
         'Jenis': doc.documentType, 
         'No Invoice/Resi': doc.senderPhone, 
         'Tgl Input': formatShortDate(doc.documentDate || doc.receivedDate),
