@@ -85,7 +85,7 @@
 
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
     .toast { position: fixed; bottom: 24px; right: 24px; padding: 16px 24px; background: var(--card); border: 1px solid var(--accent); border-radius: 12px; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; z-index: 1000; }
     .toast.show { transform: translateY(0); opacity: 1; }
@@ -233,7 +233,7 @@
               <div><label class="block text-sm text-[var(--muted)] mb-2">No Invoice/Resi</label><input type="text" name="senderPhone" class="input-field" placeholder="Masukkan nomor invoice atau resi"></div>
             </div>
             <div class="grid md:grid-cols-2 gap-5">
-              <div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal Tujuan</label><input type="date" name="documentDate" id="inputDate" class="input-field" required></div>
+              <div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal & Jam Tujuan</label><input type="datetime-local" name="documentDate" id="inputDate" class="input-field" required></div>
               <div><label class="block text-sm text-[var(--muted)] mb-2">Lokasi Tujuan</label><input type="text" name="location" class="input-field" placeholder="Contoh: Gedung A, Lantai 2" required></div>
             </div>
             <div>
@@ -339,8 +339,8 @@
           <input type="text" id="receiveNameInput" class="input-field" placeholder="Siapa yang mengambil dokumen?">
         </div>
         <div>
-          <label class="block text-sm text-[var(--muted)] mb-2">Tanggal Diterima <span class="text-[var(--danger)]">*</span></label>
-          <input type="date" id="receiveDateInput" class="input-field">
+          <label class="block text-sm text-[var(--muted)] mb-2">Tanggal & Jam Diterima <span class="text-[var(--danger)]">*</span></label>
+          <input type="datetime-local" id="receiveDateInput" class="input-field">
         </div>
       </div>
       <div class="flex gap-3 justify-end mt-6">
@@ -351,7 +351,7 @@
   </div>
   
   <!-- Bulk Modal -->
-  <div id="bulkModal" class="modal-overlay"><div class="modal-content modal-bulk"><div class="flex items-center justify-between mb-6"><h3 class="font-display font-bold text-xl">Input Massal Dokumen</h3><button onclick="closeBulkModal()" class="p-2 rounded-lg hover:bg-[var(--border)]/50 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="format-guide mb-4"><p class="text-sm font-medium text-[var(--info)] mb-2">Format Input:</p><p class="text-xs text-[var(--muted)] mb-2">1. <strong>Excel:</strong> Paste langsung dari Excel (Tab-separated).</p><p class="text-xs text-[var(--muted)] mb-2">2. <strong>Manual:</strong> Pisahkan dengan tanda pipe <code class="bg-[var(--bg)] px-1 rounded">|</code>.</p><div class="mt-3 p-3 bg-[var(--bg)] rounded-lg text-xs"><p class="font-medium text-[var(--fg)] mb-1">Urutan Kolom:</p><code class="text-[var(--accent)]">Pengirim | Tujuan | Jenis | No.Inv/Resi | Deskripsi | Lokasi</code></div></div><div class="grid md:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm text-[var(--muted)] mb-2">Jenis Dokumen Default:</label><input type="text" id="defaultDocType" class="input-field" list="docTypeListBulk" placeholder="Pilih/ketik manual"><datalist id="docTypeListBulk"><option value="Surat"><option value="Dokumen"><option value="Invoice"><option value="Proposal"><option value="Paket"></datalist></div><div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal:</label><input type="date" id="bulkDate" class="input-field"></div></div><textarea id="bulkInput" class="bulk-input-area mb-4" placeholder="Paste dari Excel atau ketik manual..."></textarea><div class="flex items-center justify-between"><p class="text-sm text-[var(--muted)]"><span id="bulkCount">0</span> dokumen terdeteksi</p><div class="flex gap-3"><button onclick="closeBulkModal()" class="btn-secondary">Batal</button><button onclick="processBulkInput()" class="btn-primary"><span class="flex items-center gap-2"> Simpan Semua</span></button></div></div><div id="bulkResult" class="mt-4 hidden"></div></div></div>
+  <div id="bulkModal" class="modal-overlay"><div class="modal-content modal-bulk"><div class="flex items-center justify-between mb-6"><h3 class="font-display font-bold text-xl">Input Massal Dokumen</h3><button onclick="closeBulkModal()" class="p-2 rounded-lg hover:bg-[var(--border)]/50 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="format-guide mb-4"><p class="text-sm font-medium text-[var(--info)] mb-2">Format Input:</p><p class="text-xs text-[var(--muted)] mb-2">1. <strong>Excel:</strong> Paste langsung dari Excel (Tab-separated).</p><p class="text-xs text-[var(--muted)] mb-2">2. <strong>Manual:</strong> Pisahkan dengan tanda pipe <code class="bg-[var(--bg)] px-1 rounded">|</code>.</p><div class="mt-3 p-3 bg-[var(--bg)] rounded-lg text-xs"><p class="font-medium text-[var(--fg)] mb-1">Urutan Kolom:</p><code class="text-[var(--accent)]">Pengirim | Tujuan | Jenis | No.Inv/Resi | Deskripsi | Lokasi</code></div></div><div class="grid md:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm text-[var(--muted)] mb-2">Jenis Dokumen Default:</label><input type="text" id="defaultDocType" class="input-field" list="docTypeListBulk" placeholder="Pilih/ketik manual"><datalist id="docTypeListBulk"><option value="Surat"><option value="Dokumen"><option value="Invoice"><option value="Proposal"><option value="Paket"></datalist></div><div><label class="block text-sm text-[var(--muted)] mb-2">Tanggal & Jam:</label><input type="datetime-local" id="bulkDate" class="input-field"></div></div><textarea id="bulkInput" class="bulk-input-area mb-4" placeholder="Paste dari Excel atau ketik manual..."></textarea><div class="flex items-center justify-between"><p class="text-sm text-[var(--muted)]"><span id="bulkCount">0</span> dokumen terdeteksi</p><div class="flex gap-3"><button onclick="closeBulkModal()" class="btn-secondary">Batal</button><button onclick="processBulkInput()" class="btn-primary"><span class="flex items-center gap-2"> Simpan Semua</span></button></div></div><div id="bulkResult" class="mt-4 hidden"></div></div></div>
 
   <script>
     // ==================== FIREBASE CONFIGURATION ====================
@@ -388,6 +388,13 @@
       return `DOC${year}${month}${day}${random}`;
     }
 
+    // Helper to format date for datetime-local input
+    function getLocalDatetimeString() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      return now.toISOString().slice(0, 16);
+    }
+
     function formatDate(dateString) {
       if(!dateString) return '-';
       const options = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -396,8 +403,9 @@
 
     function formatShortDate(dateString) {
       if(!dateString) return '-';
-      const options = { day: 'numeric', month: 'short', year: 'numeric' };
-      return new Date(dateString).toLocaleDateString('id-ID', options);
+      // Include hour and minute in options
+      const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+      return new Date(dateString).toLocaleString('id-ID', options);
     }
 
     function showToast(message, type = 'success') {
@@ -443,7 +451,6 @@
       const today = new Date().toDateString();
       const todayCount = documents.filter(d => new Date(d.documentDate || d.receivedDate).toDateString() === today).length;
 
-      // Only update global stats if no date filter is currently active in the list
       const dateFilterVal = document.getElementById('filterDate').value;
       if (!dateFilterVal) {
           document.getElementById('statTotal').textContent = total;
@@ -470,7 +477,6 @@
       
       const filterStatus = document.getElementById('filterStatus');
       document.getElementById('searchInput').value = '';
-      // Reset date filter when using quick stats
       document.getElementById('filterDate').value = '';
       
       if (filter === 'all') { filterStatus.value = 'all'; updateFilterIndicator('Semua Dokumen'); }
@@ -495,7 +501,7 @@
       document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active-filter'));
       document.getElementById('filterStatus').value = 'all';
       document.getElementById('searchInput').value = '';
-      document.getElementById('filterDate').value = ''; // Clear date filter
+      document.getElementById('filterDate').value = '';
       document.getElementById('activeFilterIndicator').classList.add('hidden');
       renderDocumentList();
     }
@@ -508,13 +514,15 @@
       const formData = new FormData(this);
       const receiptNumber = generateReceiptNumber();
       
+      const docDateVal = formData.get('documentDate');
+      
       const newDocument = {
         senderName: formData.get('senderName'),
         recipientName: formData.get('recipientName'),
         documentType: formData.get('documentType'),
         senderPhone: formData.get('senderPhone') || '-', 
         description: formData.get('description') || '',
-        documentDate: formData.get('documentDate') || new Date().toISOString(),
+        documentDate: docDateVal ? new Date(docDateVal).toISOString() : new Date().toISOString(),
         location: formData.get('location') || '-',
         receivedDate: new Date().toISOString(),
         status: 'pending',
@@ -529,7 +537,7 @@
           document.getElementById('receiptNumber').textContent = receiptNumber;
           document.getElementById('receiptModal').classList.add('show');
           this.reset();
-          document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
+          document.getElementById('inputDate').value = getLocalDatetimeString();
         }
       });
     });
@@ -541,7 +549,7 @@
        document.getElementById('receiveTargetId').value = id;
        document.getElementById('receiveResiDisplay').textContent = id;
        document.getElementById('receiveNameInput').value = '';
-       document.getElementById('receiveDateInput').value = new Date().toISOString().split('T')[0];
+       document.getElementById('receiveDateInput').value = getLocalDatetimeString();
        document.getElementById('receiveModal').classList.add('show');
     }
 
@@ -555,7 +563,7 @@
        const dateVal = document.getElementById('receiveDateInput').value;
 
        if(!name) { showToast("Harap isi nama Tujuan", "error"); return; }
-       if(!dateVal) { showToast("Harap isi tanggal diterima", "error"); return; }
+       if(!dateVal) { showToast("Harap isi tanggal & jam diterima", "error"); return; }
 
        const receivedAtTimestamp = new Date(dateVal).toISOString();
 
@@ -617,7 +625,7 @@
       document.getElementById('bulkInput').value = '';
       document.getElementById('bulkCount').textContent = '0';
       document.getElementById('bulkResult').classList.add('hidden');
-      document.getElementById('bulkDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('bulkDate').value = getLocalDatetimeString();
     }
     function closeBulkModal() { document.getElementById('bulkModal').classList.remove('show'); }
 
@@ -629,11 +637,10 @@
           document.getElementById('bulkCount').textContent = lines.length;
         });
       }
-      const today = new Date().toISOString().split('T')[0];
       const inputDate = document.getElementById('inputDate');
       const bulkDate = document.getElementById('bulkDate');
-      if(inputDate) inputDate.value = today;
-      if(bulkDate) bulkDate.value = today;
+      if(inputDate) inputDate.value = getLocalDatetimeString();
+      if(bulkDate) bulkDate.value = getLocalDatetimeString();
       
       setCurrentDate();
     });
@@ -641,7 +648,7 @@
     function processBulkInput() {
       const input = document.getElementById('bulkInput').value.trim();
       const defaultDocType = document.getElementById('defaultDocType').value || 'Dokumen';
-      const bulkDate = document.getElementById('bulkDate').value || new Date().toISOString();
+      const bulkDateVal = document.getElementById('bulkDate').value || getLocalDatetimeString();
       
       if (!input) { showToast('Masukkan data dokumen', 'error'); return; }
 
@@ -668,7 +675,7 @@
           senderPhone: parts[3] || '-',
           description: parts[4] || '',
           location: parts[5] || '-',
-          documentDate: bulkDate,
+          documentDate: new Date(bulkDateVal).toISOString(),
           receivedDate: new Date().toISOString(),
           status: 'pending',
           receivedAt: null,
@@ -701,21 +708,17 @@
       const emptyDiv = document.getElementById('emptyList');
       const filterStatus = document.getElementById('filterStatus').value;
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      // Get date filter value
       const filterDateVal = document.getElementById('filterDate').value;
 
       let filteredDocs = documents;
 
-      // 1. Filter by Status
       if (filterStatus !== 'all') filteredDocs = filteredDocs.filter(d => d.status === filterStatus);
       
-      // 2. Filter by Quick Filter (Today)
       if (currentQuickFilter === 'today') {
         const today = new Date().toDateString();
         filteredDocs = filteredDocs.filter(d => new Date(d.documentDate || d.receivedDate).toDateString() === today);
       }
       
-      // 3. Filter by Date Input
       if (filterDateVal) {
         filteredDocs = filteredDocs.filter(d => {
             if (!d.documentDate) return false;
@@ -724,7 +727,6 @@
         });
       }
 
-      // 4. Filter by Search Term
       if (searchTerm) {
         filteredDocs = filteredDocs.filter(d => 
           d.id.toLowerCase().includes(searchTerm) ||
@@ -738,16 +740,12 @@
         );
       }
 
-      // --- UPDATE TOTAL STAT CARD BASED ON DATE FILTER ---
       const totalStatEl = document.getElementById('statTotal');
       if (filterDateVal) {
-          // If date is filtered, show count of that filter
           totalStatEl.textContent = filteredDocs.length;
       } else {
-          // If no date filter, show global total
           totalStatEl.textContent = documents.length;
       }
-      // ---------------------------------------------------
 
       if (filteredDocs.length === 0) {
         listDiv.innerHTML = '';
@@ -947,7 +945,7 @@
       }));
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet(excelData);
-      ws['!cols'] = [{ wch: 5 }, { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 20 }, { wch: 15 }, { wch: 30 }];
+      ws['!cols'] = [{ wch: 5 }, { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 18 }, { wch: 20 }, { wch: 15 }, { wch: 12 }, { wch: 20 }, { wch: 20 }, { wch: 30 }];
       XLSX.utils.book_append_sheet(wb, ws, 'Data');
       const today = new Date();
       XLSX.writeFile(wb, `Data_Dokumen_${today.getFullYear()}${today.getMonth()+1}${today.getDate()}.xlsx`);
